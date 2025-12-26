@@ -8,9 +8,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* ---------------- ROUTES ---------------- */
+/* ================== ROUTES & CONTROLLERS ================== */
+
+// ROUTE FILES
 const orderRoutes = require("./routes/orderRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
+
+// CONTROLLERS
 const paymentController = require("./controllers/paymentController");
 const menController = require("./controllers/menController");
 const womenController = require("./controllers/womenController");
@@ -21,14 +25,17 @@ const shoeDataController = require("./controllers/shoeDataController");
 const favouriteController = require("./controllers/favouriteController");
 const { signup, login } = require("./controllers/authController");
 
-/* ---------------- AUTH ---------------- */
+
+/* ================== AUTH ================== */
 app.post("/api/auth/signup", signup);
 app.post("/api/auth/login", login);
 
-/* ---------------- PAYMENT ---------------- */
+
+/* ================== PAYMENT ================== */
 app.use("/api/payment", paymentController);
 
-/* ---------------- PRODUCTS ---------------- */
+
+/* ================== PRODUCTS ================== */
 app.use("/men", menController);
 app.use("/women", womenController);
 app.use("/kids", kidsController);
@@ -36,15 +43,22 @@ app.use("/allProducts", allProductsController);
 app.use("/clothData", clothDataController);
 app.use("/shoeData", shoeDataController);
 
-/* ---------------- USER ---------------- */
+
+/* ================== USER ================== */
 app.use("/favourite", favouriteController);
 
-/* ---------------- REVIEWS ---------------- */
+
+/* ================== REVIEWS ================== */
 app.use("/api/reviews", reviewRoutes);
 
-/* ---------------- ORDER ---------------- */
+
+/* ================== ORDER ================== */
 app.use("/api/order", orderRoutes);
 
-/* ---------------- START SERVER ---------------- */
+
+/* ================== SERVER ================== */
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log("Server running on port " + PORT));
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
