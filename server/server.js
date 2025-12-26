@@ -4,6 +4,13 @@ const app = require("./app");          // Express app
 const connectDB = require("./configs/db");
 
 const PORT = process.env.PORT || 5000;
+const cors = require('cors');
+
+// Place this BEFORE your routes
+app.use(cors({
+  origin: 'https://scrubandmore.vercel.app',
+  credentials: true
+}));
 
 /* ================= ENV SANITY CHECK ================= */
 if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
