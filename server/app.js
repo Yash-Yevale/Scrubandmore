@@ -4,7 +4,17 @@ const cors = require("cors");
 const app = express();
 
 /* ================= GLOBAL MIDDLEWARE ================= */
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://scrubandmore.vercel.app",   // Vercel frontend
+      "http://localhost:5173"              // Local dev
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 /* ================= CONTROLLERS ================= */
@@ -22,7 +32,7 @@ const otpController = require("./controllers/otp.controller");
 
 /* ================= ROUTES ================= */
 const orderRoutes = require("./routes/orderRoutes");
-const adminProductRoutes = require("./routes/adminProductRoutes"); // ✅ FIXED NAME
+const adminProductRoutes = require("./routes/adminProductRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 
@@ -43,7 +53,6 @@ app.post("/api/otp/verify", otpController.verifyOtp);
 app.use("/api/payment", paymentController);
 
 /* ================= PRODUCTS (LEGACY / CATEGORY) ================= */
-/* These are kept as-is to avoid breaking old frontend code */
 app.use("/men", menController);
 app.use("/women", womenController);
 app.use("/kids", kidsController);
@@ -58,11 +67,6 @@ app.use("/favourite", favouriteController);
 app.use("/api/order", orderRoutes);
 
 /* ================= PRODUCTS (NEW – MAIN) ================= */
-/*
-  IMPORTANT:
-  - SingleProduct.jsx calls /api/products/:id
-  - Admin uses /api/admin/products
-*/
 app.use("/api/products", adminProductRoutes);
 app.use("/api/admin/products", adminProductRoutes);
 
