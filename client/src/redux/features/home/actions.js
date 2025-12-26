@@ -1,33 +1,65 @@
-import axios from "axios";
-import { GET_DATA_ERROR_HOME, GET_DATA_LOADING_HOME, GET_DATA_SUCCESS_CLOTH, GET_DATA_SUCCESS_SHOE } from "./actionTypes";
+import {
+  GET_DATA_ERROR,
+  GET_DATA_LOADING,
+  GET_DATA_SUCCESS,
+  GET_PRICE_RANGE,
+  NAME_A_TO_Z,
+  NAME_Z_TO_A,
+  RATING_HIGH_TO_LOW,
+  RATING_LOW_TO_HIGH,
+  RESET_FILTERS,
+  SET_ALL_FILTERS,
+  SORT_HIGH_TO_LOW,
+  SORT_LOW_TO_HIGH,
+} from "./actionTypes";
 
-export const getDataLoadingHome = () => ({ type: GET_DATA_LOADING_HOME });
+import api from "../utils/axios";
 
-export const getDataSuccessCloth = (payload) => ({ type: GET_DATA_SUCCESS_CLOTH, payload });
+// BASIC ACTIONS
+export const getDataLoading = () => ({ type: GET_DATA_LOADING });
 
-export const getDataSuccessShoe = (payload) => ({ type: GET_DATA_SUCCESS_SHOE, payload });
+export const getDataSuccess = (payload) => ({
+  type: GET_DATA_SUCCESS,
+  payload,
+});
 
-export const getDataErrorHome = () => ({ type: GET_DATA_ERROR_HOME });
+export const getDataError = () => ({ type: GET_DATA_ERROR });
 
+export const sortLowToHigh = () => ({ type: SORT_LOW_TO_HIGH });
 
-export const getClothData = () => async (dispatch) => {
-    try {
-        dispatch(getDataLoadingHome());
-        let res = await axios.get("/clothData");
-        dispatch(getDataSuccessCloth(res.data));
-    } catch (err) {
-        console.log(err);
-        dispatch(getDataErrorHome());
-    }
-};
+export const sortHighToLow = () => ({ type: SORT_HIGH_TO_LOW });
 
-export const getShoeData = () => async (dispatch) => {
-    try {
-        dispatch(getDataLoadingHome());
-        let res = await axios.get("/shoeData");
-        dispatch(getDataSuccessShoe(res.data));
-    } catch (err) {
-        console.log(err);
-        dispatch(getDataErrorHome());
-    }
+export const ratingLowToHigh = () => ({ type: RATING_LOW_TO_HIGH });
+
+export const ratingHighToLow = () => ({ type: RATING_HIGH_TO_LOW });
+
+export const nameAtoZ = () => ({ type: NAME_A_TO_Z });
+
+export const nameZtoA = () => ({ type: NAME_Z_TO_A });
+
+export const getPriceRange = (payload) => ({
+  type: GET_PRICE_RANGE,
+  payload,
+});
+
+export const setAllFilters = (payload) => ({
+  type: SET_ALL_FILTERS,
+  payload,
+});
+
+export const resetFilters = () => ({ type: RESET_FILTERS });
+
+// MAIN REQUEST FUNCTION
+// Always fetch from /api/products
+export const getRequest = () => async (dispatch) => {
+  try {
+    dispatch(getDataLoading());
+
+    const { data } = await api.get("/api/products");   // <-- ONLY THIS
+
+    dispatch(getDataSuccess(data));
+  } catch (err) {
+    console.log("API ERROR:", err);
+    dispatch(getDataError());
+  }
 };
