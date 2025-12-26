@@ -47,7 +47,7 @@ app.use("/api/payment", paymentController);
 app.use("/men", menController);
 app.use("/women", womenController);
 app.use("/kids", kidsController);
-app.use("/allProducts", allProductsController);
+app.get("/api/allProducts", allProductsController);
 app.use("/clothData", clothDataController);
 app.use("/shoeData", shoeDataController);
 
