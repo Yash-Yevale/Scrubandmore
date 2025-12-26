@@ -25,15 +25,12 @@ const shoeDataController = require("./controllers/shoeDataController");
 const favouriteController = require("./controllers/favouriteController");
 const { signup, login } = require("./controllers/authController");
 
-
 /* ================== AUTH ================== */
 app.post("/api/auth/signup", signup);
 app.post("/api/auth/login", login);
 
-
 /* ================== PAYMENT ================== */
 app.use("/api/payment", paymentController);
-
 
 /* ================== PRODUCTS ================== */
 app.use("/men", menController);
@@ -43,18 +40,14 @@ app.use("/allProducts", allProductsController);
 app.use("/clothData", clothDataController);
 app.use("/shoeData", shoeDataController);
 
-
 /* ================== USER ================== */
 app.use("/favourite", favouriteController);
-
 
 /* ================== REVIEWS ================== */
 app.use("/api/reviews", reviewRoutes);
 
-
 /* ================== ORDER ================== */
 app.use("/api/order", orderRoutes);
-
 
 /* ================== SERVER ================== */
 const PORT = process.env.PORT || 5000;
