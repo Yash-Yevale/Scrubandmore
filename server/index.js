@@ -16,14 +16,14 @@ const reviewRoutes = require("./routes/reviewRoutes");
 
 // CONTROLLERS
 const paymentController = require("./controllers/payment.controller");
-const menController = require("./controllers/menController");
-const womenController = require("./controllers/womenController");
-const kidsController = require("./controllers/kidsController");
-const allProductsController = require("./controllers/allProductsController");
-const clothDataController = require("./controllers/clothDataController");
-const shoeDataController = require("./controllers/shoeDataController");
-const favouriteController = require("./controllers/favouriteController");
-const { signup, login } = require("./controllers/authController");
+const menController = require("./controllers/men.controller");
+const womenController = require("./controllers/women.controller");
+const kidsController = require("./controllers/kids.controller");
+const allProductsController = require("./controllers/allProducts.controller");
+const clothDataController = require("./controllers/clothData.controller");
+const shoeDataController = require("./controllers/shoeData.controller");
+const favouriteController = require("./controllers/favourite.Controller");
+const { signup, login } = require("./controllers/auth.controller");
 
 /* ================== AUTH ================== */
 app.post("/api/auth/signup", signup);
