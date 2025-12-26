@@ -1,7 +1,10 @@
+const express = require("express");
 const AllProduct = require("../models/allProducts.model");
 
-/* GET ALL PRODUCTS */
-const getAllProducts = async (req, res) => {
+const router = express.Router();
+
+// GET ALL PRODUCTS
+router.get("/", async (req, res) => {
   try {
     const products = await AllProduct.find().sort({ createdAt: -1 });
     res.json(products);
@@ -9,6 +12,6 @@ const getAllProducts = async (req, res) => {
     console.error("Fetch all products error:", err);
     res.status(500).json({ message: "Failed to fetch products" });
   }
-};
+});
 
-module.exports = getAllProducts;
+module.exports = router;
