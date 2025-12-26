@@ -1,6 +1,25 @@
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
 /* ---------------- ROUTES ---------------- */
 const orderRoutes = require("./routes/orderRoutes");
-const reviewRoutes = require("./routes/reviewRoutes"); // ✅ ADD THIS
+const reviewRoutes = require("./routes/reviewRoutes");
+const paymentController = require("./controllers/paymentController");
+const menController = require("./controllers/menController");
+const womenController = require("./controllers/womenController");
+const kidsController = require("./controllers/kidsController");
+const allProductsController = require("./controllers/allProductsController");
+const clothDataController = require("./controllers/clothDataController");
+const shoeDataController = require("./controllers/shoeDataController");
+const favouriteController = require("./controllers/favouriteController");
+const { signup, login } = require("./controllers/authController");
 
 /* ---------------- AUTH ---------------- */
 app.post("/api/auth/signup", signup);
@@ -20,8 +39,12 @@ app.use("/shoeData", shoeDataController);
 /* ---------------- USER ---------------- */
 app.use("/favourite", favouriteController);
 
-/* ---------------- REVIEWS (🔥 MISSING BEFORE) ---------------- */
-app.use("/api/reviews", reviewRoutes); // ✅ THIS FIXES EVERYTHING
+/* ---------------- REVIEWS ---------------- */
+app.use("/api/reviews", reviewRoutes);
 
 /* ---------------- ORDER ---------------- */
 app.use("/api/order", orderRoutes);
+
+/* ---------------- START SERVER ---------------- */
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log("Server running on port " + PORT));
