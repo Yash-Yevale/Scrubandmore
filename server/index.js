@@ -15,7 +15,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 
 // CONTROLLERS
-const paymentController = require("./controllers/paymentController");
+const paymentController = require("./controllers/payment.controller");
 const menController = require("./controllers/menController");
 const womenController = require("./controllers/womenController");
 const kidsController = require("./controllers/kidsController");
