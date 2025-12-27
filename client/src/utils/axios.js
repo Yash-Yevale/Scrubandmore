@@ -1,8 +1,8 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API = axios.create({
-  // REPLACE this with your actual Render URL
-  baseURL: 'https://Scrubandmore.onrender.com' 
+const api = axios.create({
+  baseURL: "https://scrubandmore.onrender.com",
+  withCredentials: true,
 });
 
-export default API;
+export default api;

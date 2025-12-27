@@ -13,14 +13,13 @@ export const Home = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // Ensure path resets on home load if needed
     dispatch(setNavbarPath(""));
     setItemSession("path", "");
   }, [dispatch]);
 
   return (
     <>
-      {/* ================= HERO ================= */}
+      {/* ================= HERO / BANNER ================= */}
       <Hero />
 
       {/* ================= VIDEO ================= */}
