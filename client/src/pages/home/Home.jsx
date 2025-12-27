@@ -1,44 +1,22 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { Box, Image, SimpleGrid } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 
-import { ClothSection } from "../../components/home/ClothSection";
-import { ShoeSection } from "../../components/home/ShoeSection";
-import { Error } from "../../components/loading/Error";
-import { Loading } from "../../components/loading/Loading";
-import { getClothData, getShoeData } from "../../redux/features/home/actions";
+import { Hero } from "../../components/home/Hero";
 import { setNavbarPath } from "../../redux/features/path/actions";
 import { setItemSession } from "../../utils/sessionStorage";
-import { Hero } from "../../components/home/Hero";
 
 const MotionBox = motion(Box);
 
 export const Home = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const {
-    loading,
-    error,
-    clothData = [],
-    shoeData = [],
-  } = useSelector((state) => state.homeReducer || {});
-
-  const handleSection = (gender) => {
-    dispatch(setNavbarPath(gender));
-    setItemSession("path", gender);
-    navigate(`/${gender}`);
-  };
-
   useEffect(() => {
-    dispatch(getClothData());
-    dispatch(getShoeData());
+    // Ensure path resets on home load if needed
+    dispatch(setNavbarPath(""));
+    setItemSession("path", "");
   }, [dispatch]);
-
-  if (loading) return <Loading />;
-  if (error) return <Error />;
 
   return (
     <>
@@ -74,13 +52,9 @@ export const Home = () => {
         </Box>
       </Box>
 
-      {/* ================= ALIGNED + ANIMATED POSTERS ================= */}
+      {/* ================= POSTERS ================= */}
       <Box bg="#fffaf5" py={20} px={[4, 6, 12]}>
-        <SimpleGrid
-          columns={[1, 1, 3]}
-          spacing={12}
-          alignItems="center"   // ✅ KEY FIX
-        >
+        <SimpleGrid columns={[1, 1, 3]} spacing={12} alignItems="center">
           {[
             "/posters/poster1.png",
             "/posters/poster2.png",
@@ -88,7 +62,7 @@ export const Home = () => {
           ].map((poster, index) => (
             <MotionBox
               key={index}
-              h="460px"                       // ✅ SAME HEIGHT
+              h="460px"
               display="flex"
               justifyContent="center"
               alignItems="center"
@@ -113,33 +87,13 @@ export const Home = () => {
                 src={poster}
                 w="100%"
                 h="100%"
-                objectFit="cover"        // ✅ PREVENTS MISALIGN
+                objectFit="cover"
                 cursor="pointer"
               />
             </MotionBox>
           ))}
         </SimpleGrid>
       </Box>
-
-      {/* ================= SHOES ================= */}
-      {Array.isArray(shoeData) &&
-        shoeData.map((data, index) => (
-          <ShoeSection
-            handleSection={handleSection}
-            key={index}
-            {...data}
-          />
-        ))}
-
-      {/* ================= CLOTH ================= */}
-      {Array.isArray(clothData) &&
-        clothData.map((data, index) => (
-          <ClothSection
-            handleSection={handleSection}
-            key={index}
-            {...data}
-          />
-        ))}
     </>
   );
 };
