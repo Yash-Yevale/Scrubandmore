@@ -1,10 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  Box, Heading, HStack, VStack, SimpleGrid,
-  Button, Tag, Text, Select, Spinner
+  Box,
+  Heading,
+  HStack,
+  VStack,
+  SimpleGrid,
+  Button,
+  Tag,
+  Text,
+  Select,
+  Spinner,
 } from "@chakra-ui/react";
-
-import api from "../../utils/axios";
+import axios from "axios";
 import { ProductCard } from "../../components/products/ProductCard";
 import { motion } from "framer-motion";
 
@@ -23,13 +30,12 @@ export const Products = () => {
   const [onlyBest, setOnlyBest] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
 
+  /* ✅ FETCH CONSUMER PRODUCTS */
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-
-        const res = await api.get("/api/products");
-
+        const res = await axios.get("/api/products");
         setProducts(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Failed to load products", err);
@@ -42,6 +48,7 @@ export const Products = () => {
     fetchProducts();
   }, []);
 
+  /* ✅ FILTER + SORT (BACKEND-COMPATIBLE) */
   const filtered = useMemo(() => {
     let list = [...products];
 
@@ -82,8 +89,75 @@ export const Products = () => {
 
   return (
     <Box px={{ base: 4, md: 12 }} py={8}>
-      {/* UI remains unchanged */}
-      {/* ... */}
+      {/* HEADER */}
+      <HStack justify="space-between" align="center" mb={6}>
+        <VStack align="start" spacing={1}>
+          <Heading size="lg">Products</Heading>
+          <Text color="gray.600">
+            Natural & organic body care by Scrubs & More
+          </Text>
+        </VStack>
+
+        <HStack spacing={3}>
+          <Tag
+            size="lg"
+            variant={onlyBest ? "solid" : "subtle"}
+            colorScheme="orange"
+            cursor="pointer"
+            onClick={() => setOnlyBest((s) => !s)}
+          >
+            Best Seller
+          </Tag>
+
+          <Select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            size="sm"
+            w="160px"
+          >
+            <option value="relevance">Sort: Relevance</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </Select>
+        </HStack>
+      </HStack>
+
+      {/* CATEGORY FILTER */}
+      <HStack spacing={3} mb={6}>
+        {CATEGORIES.map((c) => (
+          <Button
+            key={c.id}
+            size="sm"
+            variant={category === c.id ? "solid" : "ghost"}
+            colorScheme="green"
+            onClick={() => setCategory(c.id)}
+          >
+            {c.label}
+          </Button>
+        ))}
+      </HStack>
+
+      {/* GRID */}
+      <MotionVStack align="stretch">
+        <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6}>
+          {filtered.map((p) => (
+            <motion.div
+              key={p._id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+            >
+              <ProductCard product={p} />
+            </motion.div>
+          ))}
+        </SimpleGrid>
+
+        {filtered.length === 0 && (
+          <Box textAlign="center" py={12} color="gray.500">
+            No products found.
+          </Box>
+        )}
+      </MotionVStack>
     </Box>
   );
 };
