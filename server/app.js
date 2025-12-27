@@ -26,7 +26,7 @@ const kidsController = require("./controllers/kids.controller");
 const allProductsController = require("./controllers/allProducts.controller");
 const clothDataController = require("./controllers/clothData.controller");
 const shoeDataController = require("./controllers/shoeData.controller");
-const favouriteController = require("./controllers/favourite.Controller");
+const favouriteController = require("./controllers/favourite.controller");
 const paymentController = require("./controllers/payment.controller");
 const otpController = require("./controllers/otp.controller");
 
