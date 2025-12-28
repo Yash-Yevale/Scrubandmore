@@ -4,17 +4,56 @@ const cors = require("cors");
 const app = express();
 
 /* ================= GLOBAL MIDDLEWARE ================= */
+
+/**
+ * Allow only trusted origins
+ */
+const allowedOrigins = [
+  "https://scrubandmore.vercel.app",
+  "http://localhost:5173",
+  "https://scrubandmore.onrender.com"
+];
+
 app.use(
   cors({
-    origin: [
-      "https://scrubandmore.vercel.app",     // Frontend (Vercel)
-      "http://localhost:5173",               // Local development
-      "https://scrubandmore.onrender.com"    // Backend domain (Render)
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("CORS blocked"));
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   })
 );
+
+/**
+ * Force headers – fixes Render POST blocking
+ */
+app.use((req, res, next) => {
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://scrubandmore.vercel.app"
+  );
+
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+  );
+
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
 
 app.use(express.json());
 
@@ -53,21 +92,21 @@ app.post("/api/otp/verify", otpController.verifyOtp);
 /* ================= PAYMENT ================= */
 app.use("/api/payment", paymentController);
 
-/* ================= PRODUCTS (OLD CATEGORY ROUTES) ================= */
-app.use("/men", menController);
-app.use("/women", womenController);
-app.use("/kids", kidsController);
-app.use("/allProducts", allProductsController);
-app.use("/clothData", clothDataController);
-app.use("/shoeData", shoeDataController);
+/* ================= LEGACY CATEGORY ROUTES ================= */
+app.use("/api/men", menController);
+app.use("/api/women", womenController);
+app.use("/api/kids", kidsController);
+app.use("/api/allProducts", allProductsController);
+app.use("/api/clothData", clothDataController);
+app.use("/api/shoeData", shoeDataController);
 
 /* ================= USER ================= */
-app.use("/favourite", favouriteController);
+app.use("/api/favourite", favouriteController);
 
 /* ================= ORDERS ================= */
 app.use("/api/order", orderRoutes);
 
-/* ================= PRODUCTS (MAIN) ================= */
+/* ================= PRODUCTS ================= */
 app.use("/api/products", adminProductRoutes);
 app.use("/api/admin/products", adminProductRoutes);
 
