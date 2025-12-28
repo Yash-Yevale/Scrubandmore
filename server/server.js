@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const app = require("./app");          // Express app
+const app = require("./app");          // Express app (all routes + middleware)
 const connectDB = require("./configs/db");
 
 const PORT = process.env.PORT || 5000;
@@ -15,15 +15,16 @@ if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
 }
 
 /* ================= START SERVER ================= */
-connectDB()
-  .then(() => {
+(async () => {
+  try {
+    await connectDB();
     console.log("✅ MongoDB connected successfully");
 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
     });
-  })
-  .catch((err) => {
-    console.error("❌ Database connection failed:", err.message);
+  } catch (err) {
+    console.error("❌ Database connection failed:", err?.message || err);
     process.exit(1);
-  });
+  }
+})();

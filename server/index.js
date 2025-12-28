@@ -5,7 +5,23 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+/* ================== CORS (VERY IMPORTANT) ================== */
+app.use(
+  cors({
+    origin: [
+      "https://scrubandmore.vercel.app",
+      "http://localhost:3000",
+      "http://localhost:5173",
+    ],
+    methods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+    credentials: true,
+  })
+);
+
+// allow preflight
+app.options("*", cors());
+
 app.use(express.json());
 
 /* ================== ROUTES & CONTROLLERS ================== */
@@ -33,14 +49,12 @@ app.post("/api/auth/login", login);
 app.use("/api/payment", paymentController);
 
 /* ================== PRODUCTS ================== */
-/* ================== PRODUCTS ================== */
 app.use("/api/men", menController);
 app.use("/api/women", womenController);
 app.use("/api/kids", kidsController);
 app.use("/api/allProducts", allProductsController);
 app.use("/api/clothData", clothDataController);
 app.use("/api/shoeData", shoeDataController);
-
 
 /* ================== USER ================== */
 app.use("/favourite", favouriteController);
