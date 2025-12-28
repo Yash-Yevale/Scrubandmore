@@ -11,10 +11,9 @@ import {
   Select,
   Spinner,
 } from "@chakra-ui/react";
-
-import { motion } from "framer-motion";
+import axios from "axios";
 import { ProductCard } from "../../components/products/ProductCard";
-import api from "../../utils/axios";   // <-- IMPORTANT (our backend axios instance)
+import { motion } from "framer-motion";
 
 const MotionVStack = motion(VStack);
 
@@ -35,16 +34,17 @@ export const Products = () => {
   const [onlyComingSoon, setOnlyComingSoon] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
 
-  // FETCH PRODUCTS FROM BACKEND
+  const API = import.meta.env.VITE_API_URL;
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
 
-      const res = await api.get("/products");   // <-- Correct backend call
+      const res = await axios.get(`${API}/products`);
 
       setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Failed to fetch products", err);
+      console.error("❌ Failed to fetch products", err);
       setProducts([]);
     } finally {
       setLoading(false);
@@ -55,7 +55,6 @@ export const Products = () => {
     fetchProducts();
   }, []);
 
-  // FILTER + SORT
   const filtered = useMemo(() => {
     let list = [...products];
 
@@ -63,13 +62,9 @@ export const Products = () => {
       list = list.filter((p) => p.category === category);
     }
 
-    if (onlyBest) {
-      list = list.filter((p) => p.bestSeller === true);
-    }
+    if (onlyBest) list = list.filter((p) => p.bestSeller === true);
 
-    if (onlyComingSoon) {
-      list = list.filter((p) => p.comingSoon === true);
-    }
+    if (onlyComingSoon) list = list.filter((p) => p.comingSoon === true);
 
     if (sortBy === "price-asc") {
       list.sort((a, b) => {
@@ -100,7 +95,6 @@ export const Products = () => {
 
   return (
     <Box px={{ base: 4, md: 12 }} py={8}>
-      {/* HEADER */}
       <HStack justify="space-between" align="center" mb={6}>
         <VStack align="start" spacing={1}>
           <Heading size="lg">Products</Heading>
@@ -149,7 +143,6 @@ export const Products = () => {
         </HStack>
       </HStack>
 
-      {/* CATEGORY FILTER */}
       <HStack spacing={3} mb={6} wrap="wrap">
         {CATEGORIES.map((c) => (
           <Button
@@ -164,7 +157,6 @@ export const Products = () => {
         ))}
       </HStack>
 
-      {/* GRID */}
       <MotionVStack align="stretch">
         <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6}>
           {filtered.map((p) => (
