@@ -11,9 +11,10 @@ import {
   Select,
   Spinner,
 } from "@chakra-ui/react";
-import axios from "axios";
-import { ProductCard } from "../../components/products/ProductCard";
+
 import { motion } from "framer-motion";
+import { ProductCard } from "../../components/products/ProductCard";
+import api from "../../utils/axios";   // <-- IMPORTANT (our backend axios instance)
 
 const MotionVStack = motion(VStack);
 
@@ -34,11 +35,13 @@ export const Products = () => {
   const [onlyComingSoon, setOnlyComingSoon] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
 
-  /* ✅ FETCH FROM BACKEND (SINGLE SOURCE OF TRUTH) */
+  // FETCH PRODUCTS FROM BACKEND
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/products");
+
+      const res = await api.get("/products");   // <-- Correct backend call
+
       setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Failed to fetch products", err);
@@ -52,7 +55,7 @@ export const Products = () => {
     fetchProducts();
   }, []);
 
-  /* ✅ FILTER + SORT (API-COMPATIBLE) */
+  // FILTER + SORT
   const filtered = useMemo(() => {
     let list = [...products];
 
