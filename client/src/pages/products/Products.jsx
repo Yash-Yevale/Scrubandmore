@@ -35,7 +35,8 @@ export const Products = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("/api/products");
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
+
         setProducts(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Failed to load products", err);

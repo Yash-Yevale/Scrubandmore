@@ -15,7 +15,8 @@ export default function ProductList() {
   /* ---------- FETCH PRODUCTS ---------- */
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("/api/admin/products");
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/products`);
+
       setProducts(res.data);
     } catch (err) {
       console.error("Failed to load products", err);

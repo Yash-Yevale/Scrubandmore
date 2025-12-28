@@ -22,7 +22,7 @@ const kidsController = require("./controllers/kids.controller");
 const allProductsController = require("./controllers/allProducts.controller");
 const clothDataController = require("./controllers/clothData.controller");
 const shoeDataController = require("./controllers/shoeData.controller");
-const favouriteController = require("./controllers/favourite.Controller");
+const favouriteController = require("./controllers/favourite.controller");
 const { signup, login } = require("./controllers/auth.controller");
 
 /* ================== AUTH ================== */
@@ -33,12 +33,14 @@ app.post("/api/auth/login", login);
 app.use("/api/payment", paymentController);
 
 /* ================== PRODUCTS ================== */
-app.use("/men", menController);
-app.use("/women", womenController);
-app.use("/kids", kidsController);
+/* ================== PRODUCTS ================== */
+app.use("/api/men", menController);
+app.use("/api/women", womenController);
+app.use("/api/kids", kidsController);
 app.use("/api/allProducts", allProductsController);
-app.use("/clothData", clothDataController);
-app.use("/shoeData", shoeDataController);
+app.use("/api/clothData", clothDataController);
+app.use("/api/shoeData", shoeDataController);
+
 
 /* ================== USER ================== */
 app.use("/favourite", favouriteController);
