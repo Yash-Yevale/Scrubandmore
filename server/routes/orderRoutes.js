@@ -7,22 +7,26 @@ let transporter;
 
 try {
   transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // SSL
     auth: {
       user: process.env.ADMIN_EMAIL,
-      pass: process.env.ADMIN_EMAIL_PASS,
-    },
-    tls: {
-      rejectUnauthorized: false,
+      pass: process.env.ADMIN_EMAIL_PASS, // APP PASSWORD ONLY
     },
   });
+
+  console.log("📨 Mail transporter initialized");
 } catch (err) {
   console.error("MAILER INIT ERROR:", err);
 }
 
 /* ---------- helper: send email safely (non-blocking) ---------- */
 const sendMailSafe = async (options) => {
-  if (!transporter) return;
+  if (!transporter) {
+    console.warn("❌ Transporter missing");
+    return;
+  }
 
   if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_EMAIL_PASS) {
     console.warn("⚠️ Email credentials missing — skipping email send");
@@ -31,7 +35,7 @@ const sendMailSafe = async (options) => {
 
   try {
     await transporter.sendMail(options);
-    console.log("📧 Email sent");
+    console.log("📧 Email sent successfully");
   } catch (err) {
     console.error("MAIL SEND ERROR:", err.message);
   }
@@ -41,6 +45,8 @@ const sendMailSafe = async (options) => {
 router.post("/cod", async (req, res) => {
   try {
     const order = req.body;
+
+    console.log("🧾 COD order received");
 
     const productsText = order.products
       .map(
@@ -53,10 +59,11 @@ Note: ${p.note || "N/A"}
       )
       .join("\n");
 
-    // 🔥 DO NOT AWAIT — run in background
+    // Non-blocking
     sendMailSafe({
-      from: process.env.ADMIN_EMAIL,
+      from: `"Scrub & More Orders" <${process.env.ADMIN_EMAIL}>`,
       to: process.env.ADMIN_EMAIL,
+      replyTo: order.customer.email,
       subject: "🛒 New COD Order Received",
       text: `
 NEW ORDER (Cash on Delivery)
@@ -83,7 +90,6 @@ Payment Method: COD
 `,
     });
 
-    // 👇 Respond immediately
     return res.status(200).json({
       success: true,
       message: "Order placed successfully",
@@ -102,6 +108,8 @@ router.post("/razorpay-success", async (req, res) => {
   try {
     const order = req.body;
 
+    console.log("💳 Razorpay order received");
+
     const productsText = order.products
       .map(
         (p, i) => `
@@ -113,10 +121,10 @@ Note: ${p.note || "N/A"}
       )
       .join("\n");
 
-    // 🔥 Non-blocking email
     sendMailSafe({
-      from: process.env.ADMIN_EMAIL,
+      from: `"Scrub & More Orders" <${process.env.ADMIN_EMAIL}>`,
       to: process.env.ADMIN_EMAIL,
+      replyTo: order.customer.email,
       subject: "💳 New Paid Order (Razorpay)",
       text: `
 NEW ORDER (Razorpay Payment)

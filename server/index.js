@@ -6,7 +6,7 @@ dotenv.config();
 
 const app = express();
 
-/* ================== CORS (VERY IMPORTANT) ================== */
+/* ================== CORS ================== */
 app.use(
   cors({
     origin: [
@@ -19,12 +19,30 @@ app.use(
   })
 );
 
-// allow preflight
-app.options("*", cors());
+/* 🔥 critical — manually set headers */
+app.use((req, res, next) => {
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://scrubandmore.vercel.app"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,DELETE,PATCH,OPTIONS"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
+/* handle preflight quickly */
+app.options("*", (req, res) => res.sendStatus(200));
 
 app.use(express.json());
 
-/* ================== ROUTES & CONTROLLERS ================== */
+/* ================== ROUTES ================== */
 
 // ROUTE FILES
 const orderRoutes = require("./routes/orderRoutes");
@@ -57,7 +75,7 @@ app.use("/api/clothData", clothDataController);
 app.use("/api/shoeData", shoeDataController);
 
 /* ================== USER ================== */
-app.use("/favourite", favouriteController);
+app.use("/api/favourite", favouriteController);
 
 /* ================== REVIEWS ================== */
 app.use("/api/reviews", reviewRoutes);
