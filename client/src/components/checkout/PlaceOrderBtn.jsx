@@ -1,25 +1,21 @@
-import { Input } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 
-
-export const PlaceOrderBtn = ({ onClick }) => {
-    return (
-        <>
-            <Input
-                onClick={onClick}
-                as={'button'}
-                type={'submit'}
-                h={"60px"}
-                bg={'#edf2f7'}
-                color={'black'}
-                border={`1px solid #cecdce`}
-                borderRadius={"50px"}
-                w={"100%"}
-                fontSize={"17px"}
-                mt={'20px'}
-                _hover={{ borderColor: 'black' }}
-            >
-                Place Order
-            </Input>
-        </>
-    );
+export const PlaceOrderBtn = ({ onClick, disabled = false }) => {
+  return (
+    <Button
+      onClick={onClick}
+      h="60px"
+      w="100%"
+      mt="20px"
+      borderRadius="50px"
+      fontSize="17px"
+      color="black"
+      bg="#edf2f7"
+      border="1px solid #cecdce"
+      _hover={{ borderColor: "black" }}
+      isDisabled={disabled}
+    >
+      Place Order
+    </Button>
+  );
 };
