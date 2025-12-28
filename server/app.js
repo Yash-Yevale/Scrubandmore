@@ -7,8 +7,9 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "https://scrubandmore.vercel.app",   // Vercel frontend
-      "http://localhost:5173"              // Local dev
+      "https://scrubandmore.vercel.app",     // Frontend (Vercel)
+      "http://localhost:5173",               // Local development
+      "https://scrubandmore.onrender.com"    // Backend domain (Render)
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
@@ -52,7 +53,7 @@ app.post("/api/otp/verify", otpController.verifyOtp);
 /* ================= PAYMENT ================= */
 app.use("/api/payment", paymentController);
 
-/* ================= PRODUCTS (LEGACY / CATEGORY) ================= */
+/* ================= PRODUCTS (OLD CATEGORY ROUTES) ================= */
 app.use("/men", menController);
 app.use("/women", womenController);
 app.use("/kids", kidsController);
@@ -66,7 +67,7 @@ app.use("/favourite", favouriteController);
 /* ================= ORDERS ================= */
 app.use("/api/order", orderRoutes);
 
-/* ================= PRODUCTS (NEW – MAIN) ================= */
+/* ================= PRODUCTS (MAIN) ================= */
 app.use("/api/products", adminProductRoutes);
 app.use("/api/admin/products", adminProductRoutes);
 
