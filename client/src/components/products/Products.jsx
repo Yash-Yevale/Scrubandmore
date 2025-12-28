@@ -11,9 +11,11 @@ import {
   Select,
   Spinner,
 } from "@chakra-ui/react";
-import axios from "axios";
-import { ProductCard } from "../../components/products/ProductCard";
+
 import { motion } from "framer-motion";
+import api from "../../utils/axios";   // <-- IMPORTANT
+
+import { ProductCard } from "../../components/products/ProductCard";
 
 const MotionVStack = motion(VStack);
 
@@ -34,13 +36,13 @@ export const Products = () => {
   const [onlyComingSoon, setOnlyComingSoon] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
+  // ---------------- FETCH PRODUCTS ----------------
   const fetchProducts = async () => {
     try {
       setLoading(true);
 
-      const res = await axios.get(`${API_URL}/api/products`);
+      // THIS CALLS: https://scrubandmore.onrender.com/api/products
+      const res = await api.get("/products");
 
       setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
@@ -55,6 +57,7 @@ export const Products = () => {
     fetchProducts();
   }, []);
 
+  // ---------------- FILTERING + SORT ----------------
   const filtered = useMemo(() => {
     let list = [...products];
 
@@ -99,7 +102,7 @@ export const Products = () => {
         <VStack align="start" spacing={1}>
           <Heading size="lg">Products</Heading>
           <Text color="gray.600">
-            Natural & organic body care by Scrubs & More
+            Explore our natural, organic skincare products
           </Text>
         </VStack>
 
@@ -134,7 +137,7 @@ export const Products = () => {
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             size="sm"
-            w="180px"
+            w="160px"
           >
             <option value="relevance">Sort: Relevance</option>
             <option value="price-asc">Price: Low to High</option>
@@ -173,7 +176,7 @@ export const Products = () => {
 
         {filtered.length === 0 && (
           <Box textAlign="center" py={12} color="gray.500">
-            No products found.
+            No products found for selected filters.
           </Box>
         )}
       </MotionVStack>
