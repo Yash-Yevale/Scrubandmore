@@ -39,7 +39,7 @@ export const Products = () => {
     try {
       setLoading(true);
 
-      const res = await api.get("/products");
+      const res = await api.get("/api/products");
 
       console.log("PRODUCT RESPONSE =>", res.data);
 
