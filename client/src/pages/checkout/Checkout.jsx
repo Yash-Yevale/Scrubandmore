@@ -48,10 +48,12 @@ export const Checkout = () => {
     mobile: "",
   });
 
+  /* ---------- INPUT ---------- */
   const handleInputChange = ({ target: { name, value } }) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  /* ---------- VALIDATION ---------- */
   const handleFormValidation = () => {
     const emptyCheck = isCheckoutFormEmpty(form);
     if (!emptyCheck.status) {
@@ -80,6 +82,7 @@ export const Checkout = () => {
     return true;
   };
 
+  /* ---------- ORDER PAYLOAD ---------- */
   const buildOrderData = () => ({
     customer: {
       firstName: form.firstName,
@@ -96,31 +99,47 @@ export const Checkout = () => {
     orderSummary,
   });
 
+  /* ---------- SUBMIT ---------- */
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
+    console.log("⚡ CLICK TRIGGERED");
+
+    if (e?.preventDefault) {
+      try {
+        e.preventDefault();
+      } catch {}
+    }
 
     if (!cartProducts || cartProducts.length === 0) {
+      console.log("❌ Cart empty");
       setToast(toast, "Your cart is empty", "error");
       return;
     }
 
-    if (!handleFormValidation()) return;
+    if (!handleFormValidation()) {
+      console.log("❌ Validation failed");
+      return;
+    }
+
+    console.log("✅ Validation passed");
 
     const orderData = buildOrderData();
 
     /* ---------- COD ---------- */
     if (paymentMethod === "cod") {
+      console.log("🚚 COD route firing...");
+
       try {
         await axios.post(
           `${import.meta.env.VITE_API_URL}/api/order/cod`,
           orderData
         );
 
+        console.log("✅ COD success");
         setToast(toast, "Order placed successfully", "success");
         dispatch(clearCart());
         navigate("/success");
       } catch (err) {
-        console.error(err);
+        console.error("❌ COD request failed:", err);
         setToast(toast, "Order failed. Try again.", "error");
       }
 
@@ -129,12 +148,12 @@ export const Checkout = () => {
 
     /* ---------- RAZORPAY ---------- */
     try {
+      console.log("💳 Razorpay order creating...");
       const { data } = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/payment/order`,
         { amount: orderSummary.total }
       );
 
-      // ✅ pass correct arguments to initPayment
       await initPayment(
         form,
         data,
@@ -145,7 +164,7 @@ export const Checkout = () => {
         navigate
       );
     } catch (err) {
-      console.error(err);
+      console.error("❌ Razorpay error:", err);
       setToast(toast, "Payment failed. Try again.", "error");
     }
   };
