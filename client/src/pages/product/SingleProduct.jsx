@@ -46,8 +46,10 @@ export const SingleProduct = () => {
     const loadProduct = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${id}`);
 
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/products/${id}`
+        );
 
         setProduct(data);
 
@@ -66,6 +68,29 @@ export const SingleProduct = () => {
     };
 
     loadProduct();
+  }, [id]);
+
+  /* ================= FETCH REVIEWS ================= */
+  useEffect(() => {
+    if (!id) return;
+
+    const loadReviews = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/reviews/${id}`
+        );
+
+        setProduct((prev) =>
+          prev
+            ? { ...prev, reviews: res.data.reviews }
+            : { reviews: res.data.reviews }
+        );
+      } catch (err) {
+        console.error("Reviews load failed:", err);
+      }
+    };
+
+    loadReviews();
   }, [id]);
 
   if (loading) {
@@ -134,9 +159,9 @@ export const SingleProduct = () => {
 
     try {
       const res = await axios.post(
-  `${import.meta.env.VITE_API_URL}/api/reviews/${productId}`,
-  { name, rating, comment }
-);
+        `${import.meta.env.VITE_API_URL}/api/reviews/${id}`,
+        { name, rating, comment }
+      );
 
       setProduct((prev) => ({
         ...prev,
@@ -149,6 +174,7 @@ export const SingleProduct = () => {
 
       toast({ title: "Review submitted", status: "success" });
     } catch (err) {
+      console.error(err);
       toast({ title: "Failed to submit review", status: "error" });
     }
   };
@@ -300,6 +326,7 @@ export const SingleProduct = () => {
                 {"★".repeat(r.rating)}
                 {"☆".repeat(5 - r.rating)}
               </Text>
+
               {r.comment && (
                 <Text fontSize="sm" color="gray.600" mt={1}>
                   “{r.comment}”
