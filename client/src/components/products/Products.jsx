@@ -35,22 +35,15 @@ export const Products = () => {
   const [onlyComingSoon, setOnlyComingSoon] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
 
-  // ================= FETCH PRODUCTS =================
   const fetchProducts = async () => {
     try {
       setLoading(true);
 
-      const res = await api.get("/allProducts");
+      const res = await api.get("/products");
 
-      console.log("PRODUCT API RESPONSE =>", res.data);
+      console.log("PRODUCT RESPONSE =>", res.data);
 
-      setProducts(
-        Array.isArray(res.data)
-          ? res.data
-          : Array.isArray(res.data?.products)
-          ? res.data.products
-          : []
-      );
+      setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("FAILED FETCH PRODUCTS =>", err);
       setProducts([]);
@@ -63,7 +56,6 @@ export const Products = () => {
     fetchProducts();
   }, []);
 
-  // ================= FILTERS & SORT =================
   const filtered = useMemo(() => {
     let list = [...products];
 
@@ -152,7 +144,6 @@ export const Products = () => {
         </HStack>
       </HStack>
 
-      {/* CATEGORY BUTTONS */}
       <HStack spacing={3} mb={6} wrap="wrap">
         {CATEGORIES.map((c) => (
           <Button
@@ -167,7 +158,6 @@ export const Products = () => {
         ))}
       </HStack>
 
-      {/* GRID */}
       <MotionVStack align="stretch">
         <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6}>
           {filtered.map((p) => (
