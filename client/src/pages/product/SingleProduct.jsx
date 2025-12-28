@@ -133,11 +133,10 @@ export const SingleProduct = () => {
     }
 
     try {
-      const res = await axios.post(`/api/reviews/${product._id}`, {
-        name,
-        rating,
-        comment,
-      });
+      const res = await axios.post(
+  `${import.meta.env.VITE_API_URL}/api/reviews/${productId}`,
+  { name, rating, comment }
+);
 
       setProduct((prev) => ({
         ...prev,
