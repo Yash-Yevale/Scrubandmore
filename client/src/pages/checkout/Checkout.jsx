@@ -48,12 +48,10 @@ export const Checkout = () => {
     mobile: "",
   });
 
-  /* ---------- INPUT ---------- */
   const handleInputChange = ({ target: { name, value } }) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  /* ---------- VALIDATION ---------- */
   const handleFormValidation = () => {
     const emptyCheck = isCheckoutFormEmpty(form);
     if (!emptyCheck.status) {
@@ -82,7 +80,6 @@ export const Checkout = () => {
     return true;
   };
 
-  /* ---------- ORDER DATA ---------- */
   const buildOrderData = () => ({
     customer: {
       firstName: form.firstName,
@@ -99,7 +96,6 @@ export const Checkout = () => {
     orderSummary,
   });
 
-  /* ---------- SUBMIT ---------- */
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -135,19 +131,25 @@ export const Checkout = () => {
     try {
       const { data } = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/payment/order`,
-        {
-          amount: orderSummary.total,
-        }
+        { amount: orderSummary.total }
       );
 
-      initPayment(orderData, data, toast, dispatch, navigate);
+      // ✅ pass correct arguments to initPayment
+      await initPayment(
+        form,
+        data,
+        orderSummary,
+        cartProducts,
+        toast,
+        dispatch,
+        navigate
+      );
     } catch (err) {
       console.error(err);
       setToast(toast, "Payment failed. Try again.", "error");
     }
   };
 
-  /* ---------- UI ---------- */
   return (
     <Box
       p="20px"
@@ -158,10 +160,8 @@ export const Checkout = () => {
       gap={["40px", "40px", "40px", "10%"]}
       gridTemplateColumns={["100%", "100%", "100%", "55% 35%"]}
     >
-      {/* FORM */}
       <CheckoutForm onChange={handleInputChange} />
 
-      {/* SUMMARY */}
       <Box>
         <CheckoutOrderSummary
           orderSummary={orderSummary}

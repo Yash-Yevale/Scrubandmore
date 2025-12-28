@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 
+/* ---------- CREATE ORDER ---------- */
 router.post("/order", async (req, res) => {
   try {
     const { amount } = req.body;
@@ -9,8 +10,12 @@ router.post("/order", async (req, res) => {
     if (!amount || amount <= 0) {
       return res.status(400).json({ message: "Invalid amount" });
     }
-console.log("KEY ID:", process.env.RAZORPAY_KEY_ID);
-console.log("SECRET:", process.env.RAZORPAY_KEY_SECRET ? "Loaded" : "Missing");
+
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      return res.status(500).json({
+        message: "Razorpay credentials missing. Check server .env"
+      });
+    }
 
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
@@ -18,14 +23,18 @@ console.log("SECRET:", process.env.RAZORPAY_KEY_SECRET ? "Loaded" : "Missing");
     });
 
     const options = {
-      amount: amount * 100, // paise
+      amount: Math.round(amount * 100),
       currency: "INR",
       receipt: crypto.randomBytes(10).toString("hex"),
     };
 
     const order = await razorpay.orders.create(options);
 
-    return res.status(200).json(order);
+    return res.status(200).json({
+      success: true,
+      order,
+      key: process.env.RAZORPAY_KEY_ID   // <-- IMPORTANT
+    });
   } catch (error) {
     console.error("RAZORPAY ORDER ERROR:", error);
     return res.status(500).json({
@@ -49,10 +58,12 @@ router.post("/verify", (req, res) => {
       .digest("hex");
 
     if (expectedSignature === razorpay_signature) {
-      return res.status(200).json({ message: "Payment verified successfully" });
-    } else {
-      return res.status(400).json({ message: "Invalid signature" });
+      return res
+        .status(200)
+        .json({ success: true, message: "Payment verified successfully" });
     }
+
+    return res.status(400).json({ success: false, message: "Invalid signature" });
   } catch (error) {
     console.error("VERIFY ERROR:", error);
     return res.status(500).json({ message: "Verification failed" });
