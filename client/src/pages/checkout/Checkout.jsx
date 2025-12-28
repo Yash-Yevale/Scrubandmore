@@ -115,25 +115,34 @@ export const Checkout = () => {
     /* ---------- COD ---------- */
     if (paymentMethod === "cod") {
       try {
-        await axios.post("/api/order/cod", orderData);
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/order/cod`,
+          orderData
+        );
 
         setToast(toast, "Order placed successfully", "success");
         dispatch(clearCart());
         navigate("/success");
-      } catch {
+      } catch (err) {
+        console.error(err);
         setToast(toast, "Order failed. Try again.", "error");
       }
+
       return;
     }
 
     /* ---------- RAZORPAY ---------- */
     try {
-      const { data } = await axios.post("/api/payment/order", {
-        amount: orderSummary.total,
-      });
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/payment/order`,
+        {
+          amount: orderSummary.total,
+        }
+      );
 
       initPayment(orderData, data, toast, dispatch, navigate);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setToast(toast, "Payment failed. Try again.", "error");
     }
   };
