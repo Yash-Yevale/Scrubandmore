@@ -20,21 +20,20 @@ try {
   console.error("MAILER INIT ERROR:", err);
 }
 
-/* ---------- helper: send email safely ---------- */
+/* ---------- helper: send email safely (non-blocking) ---------- */
 const sendMailSafe = async (options) => {
-  if (!transporter) return false;
+  if (!transporter) return;
 
   if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_EMAIL_PASS) {
     console.warn("⚠️ Email credentials missing — skipping email send");
-    return false;
+    return;
   }
 
   try {
     await transporter.sendMail(options);
-    return true;
+    console.log("📧 Email sent");
   } catch (err) {
     console.error("MAIL SEND ERROR:", err.message);
-    return false;
   }
 };
 
@@ -54,7 +53,8 @@ Note: ${p.note || "N/A"}
       )
       .join("\n");
 
-    await sendMailSafe({
+    // 🔥 DO NOT AWAIT — run in background
+    sendMailSafe({
       from: process.env.ADMIN_EMAIL,
       to: process.env.ADMIN_EMAIL,
       subject: "🛒 New COD Order Received",
@@ -83,13 +83,14 @@ Payment Method: COD
 `,
     });
 
-    res.status(200).json({
+    // 👇 Respond immediately
+    return res.status(200).json({
       success: true,
       message: "Order placed successfully",
     });
   } catch (error) {
     console.error("COD ERROR:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Order failed",
     });
@@ -112,7 +113,8 @@ Note: ${p.note || "N/A"}
       )
       .join("\n");
 
-    await sendMailSafe({
+    // 🔥 Non-blocking email
+    sendMailSafe({
       from: process.env.ADMIN_EMAIL,
       to: process.env.ADMIN_EMAIL,
       subject: "💳 New Paid Order (Razorpay)",
@@ -138,13 +140,13 @@ Payment Method: Razorpay
 `,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Payment verified",
     });
   } catch (error) {
     console.error("RAZORPAY ORDER ERROR:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Order failed",
     });
