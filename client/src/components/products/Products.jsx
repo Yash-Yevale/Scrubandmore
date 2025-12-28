@@ -12,10 +12,9 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 
-import { motion } from "framer-motion";
-import api from "../../utils/axios";   // <-- IMPORTANT
-
+import api from "../../utils/axios";
 import { ProductCard } from "../../components/products/ProductCard";
+import { motion } from "framer-motion";
 
 const MotionVStack = motion(VStack);
 
@@ -36,17 +35,15 @@ export const Products = () => {
   const [onlyComingSoon, setOnlyComingSoon] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
 
-  // ---------------- FETCH PRODUCTS ----------------
   const fetchProducts = async () => {
     try {
       setLoading(true);
 
-      // THIS CALLS: https://scrubandmore.onrender.com/api/products
       const res = await api.get("/products");
 
       setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Failed to fetch products", err);
+      console.error("FAILED FETCH PRODUCTS =>", err);
       setProducts([]);
     } finally {
       setLoading(false);
@@ -57,7 +54,6 @@ export const Products = () => {
     fetchProducts();
   }, []);
 
-  // ---------------- FILTERING + SORT ----------------
   const filtered = useMemo(() => {
     let list = [...products];
 
@@ -98,8 +94,8 @@ export const Products = () => {
 
   return (
     <Box px={{ base: 4, md: 12 }} py={8}>
-      <HStack justify="space-between" align="center" mb={6}>
-        <VStack align="start" spacing={1}>
+      <HStack justify="space-between" mb={6}>
+        <VStack align="start">
           <Heading size="lg">Products</Heading>
           <Text color="gray.600">
             Explore our natural, organic skincare products
@@ -176,7 +172,7 @@ export const Products = () => {
 
         {filtered.length === 0 && (
           <Box textAlign="center" py={12} color="gray.500">
-            No products found for selected filters.
+            No products found.
           </Box>
         )}
       </MotionVStack>
