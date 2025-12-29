@@ -105,25 +105,14 @@ export default function AddProduct({ editingProduct, onSaved }) {
         },
       };
 
-      // ADD PRODUCT
-      if (!editingProduct) {
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/admin/products`,
-          payload
-        );
+      if (editingProduct) {
+        await axios.put(`/api/admin/products/${editingProduct._id}`, payload);
+        alert("Product updated successfully");
+      } else {
+        await axios.post("/api/admin/products/add", payload);
         alert("Product added successfully");
       }
 
-      // UPDATE PRODUCT
-      else {
-        await axios.put(
-          `${import.meta.env.VITE_API_URL}/api/admin/products/${editingProduct._id}`,
-          payload
-        );
-        alert("Product updated successfully");
-      }
-
-      // RESET FORM
       setForm({
         name: "",
         image: "",
@@ -152,33 +141,13 @@ export default function AddProduct({ editingProduct, onSaved }) {
       </Heading>
 
       <VStack spacing={4} align="stretch">
-        <Input
-          placeholder="Product Name"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-        />
+        <Input placeholder="Product Name" name="name" value={form.name} onChange={handleChange} />
 
-        <Input
-          placeholder="Image URL"
-          name="image"
-          value={form.image}
-          onChange={handleChange}
-        />
+        <Input placeholder="Image URL" name="image" value={form.image} onChange={handleChange} />
 
-        <Textarea
-          placeholder="Ingredients"
-          name="ingredients"
-          value={form.ingredients}
-          onChange={handleChange}
-        />
+        <Textarea placeholder="Ingredients" name="ingredients" value={form.ingredients} onChange={handleChange} />
 
-        <Textarea
-          placeholder="Description"
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-        />
+        <Textarea placeholder="Description" name="description" value={form.description} onChange={handleChange} />
 
         <Divider />
 
@@ -186,9 +155,7 @@ export default function AddProduct({ editingProduct, onSaved }) {
           <Text fontWeight="bold">Sold Out</Text>
           <Select
             value={form.soldOut ? "yes" : "no"}
-            onChange={(e) =>
-              setForm({ ...form, soldOut: e.target.value === "yes" })
-            }
+            onChange={(e) => setForm({ ...form, soldOut: e.target.value === "yes" })}
             w="120px"
           >
             <option value="no">No</option>
@@ -200,18 +167,13 @@ export default function AddProduct({ editingProduct, onSaved }) {
 
         <Checkbox
           isChecked={form.enableColors}
-          onChange={(e) =>
-            setForm({ ...form, enableColors: e.target.checked })
-          }
+          onChange={(e) => setForm({ ...form, enableColors: e.target.checked })}
         >
           Enable Colors
         </Checkbox>
 
         {form.enableColors && (
-          <CheckboxGroup
-            value={form.colors}
-            onChange={(values) => setForm({ ...form, colors: values })}
-          >
+          <CheckboxGroup value={form.colors} onChange={(values) => setForm({ ...form, colors: values })}>
             <Stack>
               {COLOR_OPTIONS.map((c) => (
                 <Checkbox key={c} value={c}>
@@ -226,18 +188,13 @@ export default function AddProduct({ editingProduct, onSaved }) {
 
         <Checkbox
           isChecked={form.enableFragrances}
-          onChange={(e) =>
-            setForm({ ...form, enableFragrances: e.target.checked })
-          }
+          onChange={(e) => setForm({ ...form, enableFragrances: e.target.checked })}
         >
           Enable Fragrances
         </Checkbox>
 
         {form.enableFragrances && (
-          <CheckboxGroup
-            value={form.fragrances}
-            onChange={(values) => setForm({ ...form, fragrances: values })}
-          >
+          <CheckboxGroup value={form.fragrances} onChange={(values) => setForm({ ...form, fragrances: values })}>
             <Stack>
               {FRAGRANCE_OPTIONS.map((f) => (
                 <Checkbox key={f} value={f}>
@@ -257,17 +214,13 @@ export default function AddProduct({ editingProduct, onSaved }) {
             <Input
               placeholder="Size"
               value={s.label}
-              onChange={(e) =>
-                handleSizeChange(i, "label", e.target.value)
-              }
+              onChange={(e) => handleSizeChange(i, "label", e.target.value)}
             />
             <Input
               placeholder="Price"
               type="number"
               value={s.price}
-              onChange={(e) =>
-                handleSizeChange(i, "price", e.target.value)
-              }
+              onChange={(e) => handleSizeChange(i, "price", e.target.value)}
             />
             <Button colorScheme="red" onClick={() => removeSize(i)}>
               X
