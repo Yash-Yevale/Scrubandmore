@@ -14,8 +14,8 @@ import { Contact } from "../pages/contact/contact";
 import { SingleProduct } from "../pages/product/SingleProduct";
 import { RefundPolicy } from "../pages/RefundPolicy";
 
-// 🚩 ADMIN
-import AdminDashboard from "../pages/admin/AdminDashboard";
+// ✅ CORRECT ADMIN IMPORT
+import AdminDashboard from "../admin/AdminDashboard";
 
 export const AppRoutes = () => {
   return (
@@ -23,30 +23,36 @@ export const AppRoutes = () => {
       <Navbar />
 
       <Routes>
+        {/* HOME */}
         <Route path="/" element={<Home />} />
 
+        {/* PRODUCTS */}
         <Route path="/allProducts" element={<Products />} />
         <Route path="/men" element={<Products />} />
         <Route path="/women" element={<Products />} />
         <Route path="/kids" element={<Products />} />
-
         <Route path="/product/:id" element={<SingleProduct />} />
 
+        {/* INFO */}
         <Route path="/description" element={<Description />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
 
+        {/* CART & CHECKOUT */}
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
 
+        {/* OPTIONAL */}
         <Route path="/favourite" element={<Favourite />} />
         <Route path="/orders" element={<Order />} />
 
-        {/* ADMIN PANEL */}
+        {/* ADMIN (local only for now) */}
         <Route path="/admin" element={<AdminDashboard />} />
 
+        {/* REFUND */}
         <Route path="/refund-policy" element={<RefundPolicy />} />
 
+        {/* FALLBACK */}
         <Route path="*" element={<Home />} />
       </Routes>
 
