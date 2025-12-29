@@ -29,11 +29,21 @@ export default function ProductList() {
 
   /* ---------- DELETE ---------- */
   const deleteProduct = async (id) => {
-    if (!window.confirm("Delete this product?")) return;
+  if (!window.confirm("Delete this product?")) return;
 
-    await axios.delete(`/api/admin/products/${id}`);
+  try {
+    await axios.delete(
+      `${import.meta.env.VITE_API_URL}/api/admin/products/${id}`
+    );
+
+    alert("Product deleted");
     fetchProducts();
-  };
+  } catch (err) {
+    console.error("Delete failed", err);
+    alert("Failed to delete");
+  }
+};
+
 
   /* ---------- HIDE / UNHIDE ---------- */
   const toggleActive = async (p) => {
