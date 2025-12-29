@@ -107,7 +107,7 @@ app.use("/api/favourite", favouriteController);
 app.use("/api/order", orderRoutes);
 
 /* ================= PRODUCTS ================= */
-
+app.use("/api/products", adminProductRoutes);
 app.use("/api/admin/products", adminProductRoutes);
 
 /* ================= REVIEWS ================= */
