@@ -44,6 +44,24 @@ const sendMailSafe = async (options) => {
   }
 };
 
+/* ---------- Build readable product text (color + fragrance supported) ---------- */
+const buildProductsMessage = (products = []) =>
+  products
+    .map((p, i) => {
+      return [
+        `#${i + 1}. ${p.name}`,
+        `Size: ${p.size || "-"}`,
+        p.color ? `Color: ${p.color}` : null,
+        p.fragrance ? `Fragrance: ${p.fragrance}` : null,
+        `Qty: ${p.qty}`,
+        `Price: ₹${p.price}`,
+        `Note: ${p.note || "N/A"}`
+      ]
+        .filter(Boolean)
+        .join("\n");
+    })
+    .join("\n\n");
+
 /* ============================================================
    CASH ON DELIVERY
 ============================================================ */
@@ -53,27 +71,18 @@ router.post("/cod", async (req, res) => {
 
     console.log("🧾 COD order received");
 
-    const productsText = order.products
-      ?.map(
-        (p, i) => `
-${i + 1}. ${p.name} (${p.size || "—"})
-Qty: ${p.qty}
-Price: ₹${p.price}
-Note: ${p.note || "N/A"}
-`
-      )
-      .join("\n") || "No products";
+    const productsMsg = buildProductsMessage(order.products || []);
 
-    // 🔔 TELEGRAM ALERT (NON-BLOCKING)
+    // 🔔 TELEGRAM
     sendTelegram(
       `🛒 *NEW COD ORDER*\n\n` +
-        `👤 *${order.customer.firstName} ${order.customer.lastName}*\n` +
-        `📞 ${order.customer.mobile}\n` +
-        `💰 Total: ₹${order.orderSummary.total}\n` +
-        `📦 Items: ${order.products?.length || 0}`
+      `👤 *${order.customer.firstName} ${order.customer.lastName}*\n` +
+      `📞 ${order.customer.mobile}\n` +
+      `💰 Total: ₹${order.orderSummary.total}\n\n` +
+      `📦 *Products:*\n${productsMsg}`
     );
 
-    // 📧 EMAIL (optional — may fail on Render, but harmless)
+    // 📧 EMAIL (optional)
     sendMailSafe({
       from: `"Scrub & More Orders" <${process.env.ADMIN_EMAIL}>`,
       to: process.env.ADMIN_EMAIL,
@@ -93,7 +102,7 @@ ${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}
 ${order.customer.country}
 
 Products:
-${productsText}
+${productsMsg}
 
 Order Summary:
 Subtotal: ₹${order.orderSummary.subTotal}
@@ -129,27 +138,18 @@ router.post("/razorpay-success", async (req, res) => {
 
     console.log("💳 Razorpay order received");
 
-    const productsText = order.products
-      ?.map(
-        (p, i) => `
-${i + 1}. ${p.name} (${p.size || "—"})
-Qty: ${p.qty}
-Price: ₹${p.price}
-Note: ${p.note || "N/A"}
-`
-      )
-      .join("\n") || "No products";
+    const productsMsg = buildProductsMessage(order.products || []);
 
-    // 🔔 TELEGRAM ALERT
+    // 🔔 TELEGRAM
     sendTelegram(
       `💳 *RAZORPAY PAYMENT SUCCESS*\n\n` +
-        `👤 *${order.customer.firstName} ${order.customer.lastName}*\n` +
-        `📞 ${order.customer.mobile}\n` +
-        `💰 Total Paid: ₹${order.orderSummary.total}\n` +
-        `📦 Items: ${order.products?.length || 0}`
+      `👤 *${order.customer.firstName} ${order.customer.lastName}*\n` +
+      `📞 ${order.customer.mobile}\n` +
+      `💰 Total Paid: ₹${order.orderSummary.total}\n\n` +
+      `📦 *Products:*\n${productsMsg}`
     );
 
-    // 📧 EMAIL (optional)
+    // 📧 EMAIL
     sendMailSafe({
       from: `"Scrub & More Orders" <${process.env.ADMIN_EMAIL}>`,
       to: process.env.ADMIN_EMAIL,
@@ -169,7 +169,7 @@ ${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}
 ${order.customer.country}
 
 Products:
-${productsText}
+${productsMsg}
 
 Total Paid: ₹${order.orderSummary.total}
 
