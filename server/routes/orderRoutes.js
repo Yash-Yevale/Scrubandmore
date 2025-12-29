@@ -26,15 +26,9 @@ try {
 
 /* ---------- safe mail function ---------- */
 const sendMailSafe = async (options) => {
-  if (!transporter) {
-    console.warn("❌ Transporter missing");
-    return;
-  }
+  if (!transporter) return;
 
-  if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_EMAIL_PASS) {
-    console.warn("⚠️ Email credentials missing — skipping email send");
-    return;
-  }
+  if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_EMAIL_PASS) return;
 
   try {
     await transporter.sendMail(options);
@@ -44,7 +38,7 @@ const sendMailSafe = async (options) => {
   }
 };
 
-/* ---------- Build readable product text (color + fragrance supported) ---------- */
+/* ---------- Build product message ---------- */
 const buildProductsMessage = (products = []) =>
   products
     .map((p, i) => {
@@ -73,13 +67,27 @@ router.post("/cod", async (req, res) => {
 
     const productsMsg = buildProductsMessage(order.products || []);
 
-    // 🔔 TELEGRAM
+    // 🔔 TELEGRAM NOTIFICATION
     sendTelegram(
       `🛒 *NEW COD ORDER*\n\n` +
-      `👤 *${order.customer.firstName} ${order.customer.lastName}*\n` +
-      `📞 ${order.customer.mobile}\n` +
-      `💰 Total: ₹${order.orderSummary.total}\n\n` +
-      `📦 *Products:*\n${productsMsg}`
+      `👤 *Customer*\n` +
+      `Name: ${order.customer.firstName} ${order.customer.lastName}\n` +
+      `Email: ${order.customer.email}\n` +
+      `Phone: ${order.customer.mobile}\n\n` +
+
+      `📍 *Address*\n` +
+      `${order.customer.address}\n` +
+      `${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}\n` +
+      `${order.customer.country}\n\n` +
+
+      `📦 *Products*\n${productsMsg}\n\n` +
+
+      `💰 *Order Summary*\n` +
+      `Subtotal: ₹${order.orderSummary.subTotal}\n` +
+      `Discount: ₹${order.orderSummary.discount}\n` +
+      `Total: ₹${order.orderSummary.total}\n\n` +
+
+      `💵 Payment: COD`
     );
 
     // 📧 EMAIL (optional)
@@ -119,7 +127,6 @@ Payment Method: COD
     });
   } catch (error) {
     console.error("COD ERROR:", error);
-
     sendTelegram("❌ COD order failed on server");
 
     return res.status(500).json({
@@ -140,13 +147,27 @@ router.post("/razorpay-success", async (req, res) => {
 
     const productsMsg = buildProductsMessage(order.products || []);
 
-    // 🔔 TELEGRAM
+    // 🔔 TELEGRAM NOTIFICATION
     sendTelegram(
       `💳 *RAZORPAY PAYMENT SUCCESS*\n\n` +
-      `👤 *${order.customer.firstName} ${order.customer.lastName}*\n` +
-      `📞 ${order.customer.mobile}\n` +
-      `💰 Total Paid: ₹${order.orderSummary.total}\n\n` +
-      `📦 *Products:*\n${productsMsg}`
+      `👤 *Customer*\n` +
+      `Name: ${order.customer.firstName} ${order.customer.lastName}\n` +
+      `Email: ${order.customer.email}\n` +
+      `Phone: ${order.customer.mobile}\n\n` +
+
+      `📍 *Address*\n` +
+      `${order.customer.address}\n` +
+      `${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}\n` +
+      `${order.customer.country}\n\n` +
+
+      `📦 *Products*\n${productsMsg}\n\n` +
+
+      `💰 *Order Summary*\n` +
+      `Subtotal: ₹${order.orderSummary.subTotal}\n` +
+      `Discount: ₹${order.orderSummary.discount}\n` +
+      `Total Paid: ₹${order.orderSummary.total}\n\n` +
+
+      `✅ Payment: Razorpay`
     );
 
     // 📧 EMAIL
@@ -183,7 +204,6 @@ Payment Method: Razorpay
     });
   } catch (error) {
     console.error("RAZORPAY ORDER ERROR:", error);
-
     sendTelegram("❌ Razorpay order failed on server");
 
     return res.status(500).json({
