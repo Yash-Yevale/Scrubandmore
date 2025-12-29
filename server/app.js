@@ -5,9 +5,6 @@ const app = express();
 
 /* ================= GLOBAL MIDDLEWARE ================= */
 
-/**
- * Allow only trusted origins
- */
 const allowedOrigins = [
   "https://scrubandmore.vercel.app",
   "http://localhost:5173",
@@ -27,25 +24,16 @@ app.use(
   })
 );
 
-/**
- * Force headers – fixes Render POST blocking
- */
 app.use((req, res, next) => {
-  res.header(
-    "Access-Control-Allow-Origin",
-    "https://scrubandmore.vercel.app"
-  );
-
+  res.header("Access-Control-Allow-Origin", "https://scrubandmore.vercel.app");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
-
   res.header(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, PATCH, OPTIONS"
   );
-
   res.header("Access-Control-Allow-Credentials", "true");
 
   if (req.method === "OPTIONS") {
@@ -58,8 +46,8 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 /* ================= CONTROLLERS ================= */
-const { signup, login } = require("./controllers/auth.controller");
 
+const { signup, login } = require("./controllers/auth.controller");
 const menController = require("./controllers/men.controller");
 const womenController = require("./controllers/women.controller");
 const kidsController = require("./controllers/kids.controller");
@@ -71,6 +59,7 @@ const paymentController = require("./controllers/payment.controller");
 const otpController = require("./controllers/otp.controller");
 
 /* ================= ROUTES ================= */
+
 const orderRoutes = require("./routes/orderRoutes");
 const adminProductRoutes = require("./routes/adminProductRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
@@ -106,8 +95,7 @@ app.use("/api/favourite", favouriteController);
 /* ================= ORDERS ================= */
 app.use("/api/order", orderRoutes);
 
-/* ================= PRODUCTS ================= */
-app.use("/api/products", adminProductRoutes);
+/* ================= ADMIN PRODUCTS (ONLY HERE) ================= */
 app.use("/api/admin/products", adminProductRoutes);
 
 /* ================= REVIEWS ================= */
