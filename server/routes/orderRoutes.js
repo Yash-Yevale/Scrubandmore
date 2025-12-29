@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const nodemailer = require("nodemailer");
 
+// ⭐ Telegram utility
+const { sendTelegram } = require("../utils/telegram");
+
 /* ---------- EMAIL CONFIG ---------- */
 let transporter;
 
@@ -9,10 +12,10 @@ try {
   transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
-    secure: true, // SSL
+    secure: true,
     auth: {
       user: process.env.ADMIN_EMAIL,
-      pass: process.env.ADMIN_EMAIL_PASS, // APP PASSWORD ONLY
+      pass: process.env.ADMIN_EMAIL_PASS,
     },
   });
 
@@ -21,7 +24,7 @@ try {
   console.error("MAILER INIT ERROR:", err);
 }
 
-/* ---------- helper: send email safely (non-blocking) ---------- */
+/* ---------- safe mail function ---------- */
 const sendMailSafe = async (options) => {
   if (!transporter) {
     console.warn("❌ Transporter missing");
@@ -41,7 +44,9 @@ const sendMailSafe = async (options) => {
   }
 };
 
-/* ---------- COD ORDER ---------- */
+/* ============================================================
+   CASH ON DELIVERY
+============================================================ */
 router.post("/cod", async (req, res) => {
   try {
     const order = req.body;
@@ -49,17 +54,26 @@ router.post("/cod", async (req, res) => {
     console.log("🧾 COD order received");
 
     const productsText = order.products
-      .map(
+      ?.map(
         (p, i) => `
-${i + 1}. ${p.name} (${p.size})
+${i + 1}. ${p.name} (${p.size || "—"})
 Qty: ${p.qty}
 Price: ₹${p.price}
 Note: ${p.note || "N/A"}
 `
       )
-      .join("\n");
+      .join("\n") || "No products";
 
-    // Non-blocking
+    // 🔔 TELEGRAM ALERT (NON-BLOCKING)
+    sendTelegram(
+      `🛒 *NEW COD ORDER*\n\n` +
+        `👤 *${order.customer.firstName} ${order.customer.lastName}*\n` +
+        `📞 ${order.customer.mobile}\n` +
+        `💰 Total: ₹${order.orderSummary.total}\n` +
+        `📦 Items: ${order.products?.length || 0}`
+    );
+
+    // 📧 EMAIL (optional — may fail on Render, but harmless)
     sendMailSafe({
       from: `"Scrub & More Orders" <${process.env.ADMIN_EMAIL}>`,
       to: process.env.ADMIN_EMAIL,
@@ -96,6 +110,9 @@ Payment Method: COD
     });
   } catch (error) {
     console.error("COD ERROR:", error);
+
+    sendTelegram("❌ COD order failed on server");
+
     return res.status(500).json({
       success: false,
       message: "Order failed",
@@ -103,7 +120,9 @@ Payment Method: COD
   }
 });
 
-/* ---------- RAZORPAY SUCCESS ---------- */
+/* ============================================================
+   RAZORPAY SUCCESS
+============================================================ */
 router.post("/razorpay-success", async (req, res) => {
   try {
     const order = req.body;
@@ -111,16 +130,26 @@ router.post("/razorpay-success", async (req, res) => {
     console.log("💳 Razorpay order received");
 
     const productsText = order.products
-      .map(
+      ?.map(
         (p, i) => `
-${i + 1}. ${p.name} (${p.size})
+${i + 1}. ${p.name} (${p.size || "—"})
 Qty: ${p.qty}
 Price: ₹${p.price}
 Note: ${p.note || "N/A"}
 `
       )
-      .join("\n");
+      .join("\n") || "No products";
 
+    // 🔔 TELEGRAM ALERT
+    sendTelegram(
+      `💳 *RAZORPAY PAYMENT SUCCESS*\n\n` +
+        `👤 *${order.customer.firstName} ${order.customer.lastName}*\n` +
+        `📞 ${order.customer.mobile}\n` +
+        `💰 Total Paid: ₹${order.orderSummary.total}\n` +
+        `📦 Items: ${order.products?.length || 0}`
+    );
+
+    // 📧 EMAIL (optional)
     sendMailSafe({
       from: `"Scrub & More Orders" <${process.env.ADMIN_EMAIL}>`,
       to: process.env.ADMIN_EMAIL,
@@ -154,6 +183,9 @@ Payment Method: Razorpay
     });
   } catch (error) {
     console.error("RAZORPAY ORDER ERROR:", error);
+
+    sendTelegram("❌ Razorpay order failed on server");
+
     return res.status(500).json({
       success: false,
       message: "Order failed",
