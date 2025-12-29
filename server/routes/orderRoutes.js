@@ -63,7 +63,8 @@ router.post("/cod", async (req, res) => {
   try {
     const order = req.body;
 
-    console.log("🧾 COD order received", order?.orderSummary?.total);
+    console.log("🔥 COD ORDER RECEIVED ===>");
+    console.log(JSON.stringify(order, null, 2));
 
     const productsMsg = buildProductsMessage(order.products || []);
 
@@ -141,7 +142,8 @@ router.post("/razorpay-success", async (req, res) => {
   try {
     const order = req.body;
 
-    console.log("💳 Razorpay order received", order?.orderSummary?.total);
+    console.log("🔥 RAZORPAY ORDER RECEIVED ===>");
+    console.log(JSON.stringify(order, null, 2));
 
     const productsMsg = buildProductsMessage(order.products || []);
 
