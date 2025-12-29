@@ -15,6 +15,8 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+const BASE = import.meta.env.VITE_API_URL;
+
 
 const COLOR_OPTIONS = ["Lavender", "Pink", "White", "Swan White", "Mango & Peach"];
 
@@ -105,13 +107,19 @@ export default function AddProduct({ editingProduct, onSaved }) {
         },
       };
 
-      if (editingProduct) {
-        await axios.put(`/api/admin/products/${editingProduct._id}`, payload);
-        alert("Product updated successfully");
-      } else {
-        await axios.post("/api/admin/products/add", payload);
-        alert("Product added successfully");
-      }
+if (editingProduct) {
+  await axios.put(
+    `${BASE}/api/admin/products/${editingProduct._id}`,
+    payload
+  );
+  alert("Product updated successfully");
+} else {
+  await axios.post(
+    `${BASE}/api/admin/products/add`,
+    payload
+  );
+  alert("Product added successfully");
+}
 
       setForm({
         name: "",
