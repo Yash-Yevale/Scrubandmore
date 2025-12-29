@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const nodemailer = require("nodemailer");
 
-// ⭐ Telegram utility
+console.log("📦 USING ORDER ROUTES FILE — TELEGRAM FORMAT V2");
+
 const { sendTelegram } = require("../utils/telegram");
 
 /* ---------- EMAIL CONFIG ---------- */
@@ -24,13 +25,12 @@ try {
   console.error("MAILER INIT ERROR:", err);
 }
 
-/* ---------- safe mail function ---------- */
+/* ---------- Safe email function ---------- */
 const sendMailSafe = async (options) => {
-  if (!transporter) return;
-
-  if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_EMAIL_PASS) return;
-
   try {
+    if (!transporter) return;
+    if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_EMAIL_PASS) return;
+
     await transporter.sendMail(options);
     console.log("📧 Email sent successfully");
   } catch (err) {
@@ -43,13 +43,13 @@ const buildProductsMessage = (products = []) =>
   products
     .map((p, i) => {
       return [
-        `#${i + 1}. ${p.name}`,
+        `#${i + 1}. ${p.name || "-"}`,
         `Size: ${p.size || "-"}`,
         p.color ? `Color: ${p.color}` : null,
         p.fragrance ? `Fragrance: ${p.fragrance}` : null,
-        `Qty: ${p.qty}`,
-        `Price: ₹${p.price}`,
-        `Note: ${p.note || "N/A"}`
+        `Qty: ${p.qty || "-"}`,
+        `Price: ₹${p.price || 0}`,
+        `Note: ${p.note || "N/A"}`,
       ]
         .filter(Boolean)
         .join("\n");
@@ -63,34 +63,32 @@ router.post("/cod", async (req, res) => {
   try {
     const order = req.body;
 
-    console.log("🧾 COD order received");
+    console.log("🧾 COD order received", order?.orderSummary?.total);
 
     const productsMsg = buildProductsMessage(order.products || []);
 
-    // 🔔 TELEGRAM NOTIFICATION
     sendTelegram(
       `🛒 *NEW COD ORDER*\n\n` +
-      `👤 *Customer*\n` +
-      `Name: ${order.customer.firstName} ${order.customer.lastName}\n` +
-      `Email: ${order.customer.email}\n` +
-      `Phone: ${order.customer.mobile}\n\n` +
+        `👤 *Customer*\n` +
+        `Name: ${order.customer.firstName} ${order.customer.lastName}\n` +
+        `Email: ${order.customer.email}\n` +
+        `Phone: ${order.customer.mobile}\n\n` +
 
-      `📍 *Address*\n` +
-      `${order.customer.address}\n` +
-      `${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}\n` +
-      `${order.customer.country}\n\n` +
+        `📍 *Address*\n` +
+        `${order.customer.address}\n` +
+        `${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}\n` +
+        `${order.customer.country}\n\n` +
 
-      `📦 *Products*\n${productsMsg}\n\n` +
+        `📦 *Products*\n${productsMsg}\n\n` +
 
-      `💰 *Order Summary*\n` +
-      `Subtotal: ₹${order.orderSummary.subTotal}\n` +
-      `Discount: ₹${order.orderSummary.discount}\n` +
-      `Total: ₹${order.orderSummary.total}\n\n` +
+        `💰 *Order Summary*\n` +
+        `Subtotal: ₹${order.orderSummary.subTotal}\n` +
+        `Discount: ₹${order.orderSummary.discount}\n` +
+        `Total: ₹${order.orderSummary.total}\n\n` +
 
-      `💵 Payment: COD`
+        `💵 Payment: COD`
     );
 
-    // 📧 EMAIL (optional)
     sendMailSafe({
       from: `"Scrub & More Orders" <${process.env.ADMIN_EMAIL}>`,
       to: process.env.ADMIN_EMAIL,
@@ -143,34 +141,32 @@ router.post("/razorpay-success", async (req, res) => {
   try {
     const order = req.body;
 
-    console.log("💳 Razorpay order received");
+    console.log("💳 Razorpay order received", order?.orderSummary?.total);
 
     const productsMsg = buildProductsMessage(order.products || []);
 
-    // 🔔 TELEGRAM NOTIFICATION
     sendTelegram(
       `💳 *RAZORPAY PAYMENT SUCCESS*\n\n` +
-      `👤 *Customer*\n` +
-      `Name: ${order.customer.firstName} ${order.customer.lastName}\n` +
-      `Email: ${order.customer.email}\n` +
-      `Phone: ${order.customer.mobile}\n\n` +
+        `👤 *Customer*\n` +
+        `Name: ${order.customer.firstName} ${order.customer.lastName}\n` +
+        `Email: ${order.customer.email}\n` +
+        `Phone: ${order.customer.mobile}\n\n` +
 
-      `📍 *Address*\n` +
-      `${order.customer.address}\n` +
-      `${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}\n` +
-      `${order.customer.country}\n\n` +
+        `📍 *Address*\n` +
+        `${order.customer.address}\n` +
+        `${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}\n` +
+        `${order.customer.country}\n\n` +
 
-      `📦 *Products*\n${productsMsg}\n\n` +
+        `📦 *Products*\n${productsMsg}\n\n` +
 
-      `💰 *Order Summary*\n` +
-      `Subtotal: ₹${order.orderSummary.subTotal}\n` +
-      `Discount: ₹${order.orderSummary.discount}\n` +
-      `Total Paid: ₹${order.orderSummary.total}\n\n` +
+        `💰 *Order Summary*\n` +
+        `Subtotal: ₹${order.orderSummary.subTotal}\n` +
+        `Discount: ₹${order.orderSummary.discount}\n` +
+        `Total Paid: ₹${order.orderSummary.total}\n\n` +
 
-      `✅ Payment: Razorpay`
+        `✅ Payment: Razorpay`
     );
 
-    // 📧 EMAIL
     sendMailSafe({
       from: `"Scrub & More Orders" <${process.env.ADMIN_EMAIL}>`,
       to: process.env.ADMIN_EMAIL,
